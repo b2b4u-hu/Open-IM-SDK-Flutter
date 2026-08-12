@@ -69,6 +69,15 @@ class IMManager {
               userInfo = Utils.toObj(data, (map) => UserInfo.fromJson(map));
               userManager.listener.selfInfoUpdated(userInfo);
               break;
+            case 'onUserCommandAdd':
+              userManager.listener.userCommandAdd(data);
+              break;
+            case 'onUserCommandDelete':
+              userManager.listener.userCommandDelete(data);
+              break;
+            case 'onUserCommandUpdate':
+              userManager.listener.userCommandUpdate(data);
+              break;
             case 'onUserStatusChanged':
               final status = Utils.toObj(data, (map) => UserStatusInfo.fromJson(map));
               userManager.listener.userStatusChanged(status);
