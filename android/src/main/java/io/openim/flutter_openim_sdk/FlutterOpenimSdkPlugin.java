@@ -46,7 +46,7 @@ public class FlutterOpenimSdkPlugin implements FlutterPlugin, MethodCallHandler,
     private static Context context;
     private ConnectivityListener connectivityListener;
     private VisibilityListener visibilityListener;
-    public static boolean isInitialized;
+    public static volatile boolean isInitialized;
 
     public FlutterOpenimSdkPlugin() {
         FlutterOpenimSdkPlugin.imManager = new IMManager();

@@ -10,19 +10,40 @@ import io.openim.flutter_openim_sdk.listener.OnUploadLogsListener;
 import io.openim.flutter_openim_sdk.util.CommonUtil;
 import open_im_sdk.Open_im_sdk;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class IMManager extends BaseManager {
+    private static final Object SDK_INIT_LOCK = new Object();
+    private static final ExecutorService SDK_INIT_EXECUTOR = Executors.newSingleThreadExecutor();
 
     public void initSDK(MethodCall methodCall, MethodChannel.Result result) {
-        boolean initialized = Open_im_sdk.initSDK(
-                new OnConnListener(),
-                value(methodCall, "operationID"),
-                jsonValue(methodCall));
-        FlutterOpenimSdkPlugin.isInitialized = initialized;
-        CommonUtil.runMainThreadReturn(result, initialized);
+        SDK_INIT_EXECUTOR.execute(() -> {
+            synchronized (SDK_INIT_LOCK) {
+                // The Go SDK is process-wide. A second initSDK call can race
+                // with the first one, so never re-enter native initialization.
+                if (FlutterOpenimSdkPlugin.isInitialized) {
+                    CommonUtil.runMainThreadReturn(result, true);
+                    return;
+                }
+
+                boolean initialized = Open_im_sdk.initSDK(
+                        new OnConnListener(),
+                        value(methodCall, "operationID"),
+                        jsonValue(methodCall));
+                FlutterOpenimSdkPlugin.isInitialized = initialized;
+                CommonUtil.runMainThreadReturn(result, initialized);
+            }
+        });
     }
 
     public void unInitSDK(MethodCall methodCall, MethodChannel.Result result) {
-        Open_im_sdk.unInitSDK(value(methodCall, "operationID"));
+        SDK_INIT_EXECUTOR.execute(() -> {
+            synchronized (SDK_INIT_LOCK) {
+                Open_im_sdk.unInitSDK(value(methodCall, "operationID"));
+                FlutterOpenimSdkPlugin.isInitialized = false;
+            }
+        });
     }
 
     public void login(MethodCall methodCall, MethodChannel.Result result) {

@@ -162,6 +162,13 @@ jobs:
           git commit -m "chore(deps): bump core dependencies (iOS: ${TARGET_IOS_TAG}, Android: ${TARGET_AAR_VER})"
           git push origin HEAD
 
+          # Push a version tag to trigger the pub.dev publish workflow (publish.yml)
+          # The tag must match the pattern configured on pub.dev Automated Publishing admin page.
+          PUB_VER=$(grep '^version:' pubspec.yaml | awk '{print $2}')
+          echo "Pushing tag v${PUB_VER} to trigger pub.dev publish workflow..."
+          git tag "v${PUB_VER}"
+          git push origin "v${PUB_VER}"
+
       - name: Report Failure via Issue
         if: failure() && env.NEED_UPDATE == 'true'
         env:
