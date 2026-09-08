@@ -56,9 +56,11 @@ jobs:
       #   3. Set repository: openimsdk/open-im-sdk-flutter
       #   4. Set tag pattern: v{{version}}
 
-      - name: Publish to pub.dev
+      - name: Set up Dart (configures OIDC auth for pub.dev)
         uses: dart-lang/setup-dart@v1
-        # dart-lang/setup-dart configures OIDC auth automatically; run publish after setup.
 
-      - name: Run dart pub publish
+      - name: Install Dart dependencies
+        run: dart pub get
+
+      - name: Publish to pub.dev
         run: dart pub publish --force
