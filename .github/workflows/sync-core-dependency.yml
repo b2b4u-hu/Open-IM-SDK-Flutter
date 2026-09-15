@@ -58,7 +58,7 @@ jobs:
           if [ -n "$INPUT_IOS_TAG" ]; then
             TARGET_IOS_TAG="$INPUT_IOS_TAG"
           else
-            TARGET_IOS_TAG=$(gh api "repos/openimsdk/openim-sdk-core-ios/tags?per_page=1" --jq '.[0].name')
+            TARGET_IOS_TAG=$(gh api "repos/openimsdk/openim-sdk-core-ios/tags?per_page=100" --jq '.[].name' | grep -v 'dynamic' | sort -V | tail -n 1)
           fi
           echo "TARGET_IOS_TAG=$TARGET_IOS_TAG" >> $GITHUB_ENV
 
