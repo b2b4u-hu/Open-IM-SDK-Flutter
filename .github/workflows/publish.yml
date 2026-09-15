@@ -40,7 +40,7 @@ jobs:
 
       - name: Verify iOS Podspec
         run: |
-          gem install cocoapods --no-document
+          which pod || gem install cocoapods --no-document
           pod lib lint ios/flutter_openim_sdk.podspec --allow-warnings --skip-tests
 
       - name: Verify Android Gradle Build
